@@ -44,3 +44,10 @@
   .categoryList button{grid-template-columns:42px minmax(165px,1fr) 74px 22px;gap:6px;padding:23px 2px}
   .categoryList button strong{font-size:23px;white-space:nowrap}
 }
+
+.siteFooter{border-top:1px solid #dfddd7;padding:60px 6vw 70px;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:end;background:#fff}
+.footerBrand{max-width:420px}.footerBrand .logo{font-size:31px}.footerBrand p{margin:15px 0 0;color:#77736d;font-size:10px;line-height:1.8}
+.footerLinks{display:grid;grid-template-columns:repeat(3,minmax(90px,1fr));gap:10px 18px;justify-items:end}
+.footerLinks button{border:0;background:none;color:#5f5c57;font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:7px 0}
+.footerLinks button:hover{color:#111}
+@media(max-width:560px){.siteFooter{grid-template-columns:1fr;padding:48px 6vw 58px;gap:28px}.footerLinks{justify-items:start;grid-template-columns:repeat(2,minmax(100px,1fr));gap:8px 24px}}
