@@ -10,7 +10,7 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-    "strict": false,
+    "strict": false,"noImplicitAny": false,
     "skipLibCheck": true
   },
   "include": ["src"]
