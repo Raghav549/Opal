@@ -1,5 +1,12 @@
-# OPAL — Loose Stones
+# Opal
 
-Premium editorial storefront for loose diamonds and gemstones.
+Premium white-first loose-stone storefront.
 
-White / ivory luxury visual system, Three.js animated gemstone specimen, responsive collection, and private inquiry flow. No rings or jewelry UI.
+Current design direction:
+- Brand text: Opal only
+- White editorial canvas with subtle gray depth
+- Refined small/medium typography
+- 2.5D black/gray interactive controls
+- Three.js 3D specimen motion
+- Separate collection, search, about/story/sourcing/policy/product flows planned
+- Product data model supports up to 5 images + 1 video
