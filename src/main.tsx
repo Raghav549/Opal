@@ -54,7 +54,7 @@ function App(){
  const hold=(v:string,i:number)=>{setCart(x=>x.concat([{name:active.name,variant:v,price:1500+i*650,image:stoneImages[(active.id+i)%stoneImages.length]}]));nav('cart')};
  const filtered=stones.filter((s:any)=>String(s.name+' '+s.variants.join(' ')).toLowerCase().includes(query.toLowerCase()));
  return <div className="site">
-  <header><button className="logo" onClick={()=>nav('home')}>Opal</button><nav>{['categories','search','about','story','origins','gifts','policies'].map(p=><button key={p} onClick={()=>nav(p)}>{p[0].toUpperCase()+p.slice(1)}</button>)}</nav><div className="headActions">
+  <header><button className="logo" onClick={()=>nav('home')}>Opal</button><nav>{['categories','search','about','story','origins','gifts','policies','contact'].map(p=><button key={p} onClick={()=>nav(p)}>{p[0].toUpperCase()+p.slice(1)}</button>)}</nav><div className="headActions">
    <button className="iconBtn" aria-label="Search" onClick={()=>nav('search')}><span className="ico searchIcon"/></button>
    <button className="iconBtn" aria-label="Shopping bag" onClick={()=>nav('cart')}><span className="ico bagIcon"/><em>{cart.length}</em></button>
    <button className="iconBtn" aria-label="Orders" onClick={()=>nav('orders')}><span className="ico orderIcon"/></button>
