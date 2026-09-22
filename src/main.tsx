@@ -8,7 +8,7 @@ const SUPABASE_URL='https://jvfmptusadipzdouofdb.supabase.co';
 const SUPABASE_KEY='sb_publishable_6Ph-e9YCY3aeEjxfrPqK0g_YwodZsnv';
 let supabase:any=null;try{supabase=createClient(SUPABASE_URL,SUPABASE_KEY)}catch(e){console.warn('Supabase unavailable',e)}
 const HERO='https://res.cloudinary.com/wholetv/image/upload/v1790069674/wvvcl7fyntc9uewwoe3z.webp';
-const HERO_VIDEO='https://res.cloudinary.com/wholetv/video/upload/v1784040316/zdgx29xmmjf7q9dmrcpu.mp4';
+const HERO_VIDEO='https://res.cloudinary.com/wholetv/video/upload/v1790087679/bxtfxreuil7llicuzmhe.mp4';
 const stoneImages=['https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=900&q=85','https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?auto=format&fit=crop&w=900&q=85','https://images.unsplash.com/photo-1547996160-81dfa63595aa?auto=format&fit=crop&w=900&q=85','https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=900&q=85'];
 const stones=[
 ['Opal',['White','Fire','Crystal','Black','Green']],['Pearl',['Natural']],['Tiger eye',['Natural']],['Cat eye',['Natural']],['Amethyst',['Natural']],['Rock crystal',['Natural']],['Matura Diamond',['Natural']],['Starlite',['Natural']],['Jacinth',['Natural']],['Jargoon',['Natural']],['Malacon',['Natural']],['Emerald',['Vivid Green','Bluish-Green','Yellowish-Green']],['Ruby',['Pigeon Blood','Vivid Red','Purplish-Red','Orangey-Red','Deep Red']],['Lapis Lazuli',['Natural']],['Spinel',['Royal Blue','Nocturnal Sky','Evening Sky','Denim Lapis']],['Moonstone',['Natural']],['Black onyx',['Natural']],['Agate',['Red','Blue','Green','Purple','Yellow + Orange','Black + Gray','White + Brown']]
