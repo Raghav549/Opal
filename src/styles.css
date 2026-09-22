@@ -30,3 +30,17 @@
 .megaPage{gap:34px}.megaLead{padding-bottom:32px}.megaLead h2{font-size:42px}.megaLead .scene{height:260px}
 .megaSection,.giftLong{padding-top:28px}.megaSection{gap:16px}.megaText h3,.giftLong h3{font-size:34px}.megaArt{height:280px}.megaArt img{height:280px;border-radius:14px}.giftLong img{height:250px;border-radius:14px}
 }
+
+/* Mobile: keep category names on one visual line instead of narrow word wrapping. */
+@media(max-width:900px){
+  .categoryList button{grid-template-columns:46px minmax(170px,1fr) 86px 24px;gap:8px;padding:22px 4px}
+  .categoryList button strong{font-size:24px;line-height:1.05;white-space:nowrap;overflow:visible;word-break:normal;overflow-wrap:normal}
+  .categoryList button em{white-space:nowrap}
+}
+@media(max-width:560px){
+  .heroBottom{bottom:32px}
+  .heroExplore{transform:translateY(8px)}
+  .heroBottom span{transform:translateY(5px)}
+  .categoryList button{grid-template-columns:42px minmax(165px,1fr) 74px 22px;gap:6px;padding:23px 2px}
+  .categoryList button strong{font-size:23px;white-space:nowrap}
+}
