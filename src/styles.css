@@ -51,3 +51,11 @@
 .footerLinks button{border:0;background:none;color:#5f5c57;font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:7px 0}
 .footerLinks button:hover{color:#111}
 @media(max-width:560px){.siteFooter{grid-template-columns:1fr;padding:48px 6vw 58px;gap:28px}.footerLinks{justify-items:start;grid-template-columns:repeat(2,minmax(100px,1fr));gap:8px 24px}}
+
+.stoneHighlights{display:flex;gap:28px;overflow-x:auto;overscroll-behavior-x:contain;padding:28px 6vw 34px;border-bottom:1px solid #e6e3dd;scrollbar-width:none}
+.stoneHighlights::-webkit-scrollbar{display:none}
+.stoneHighlight{flex:0 0 82px;display:grid;gap:9px;justify-items:center;border:0;background:transparent;padding:0;color:#171716}
+.highlightImageWrap{width:72px;height:72px;border:1px solid #d9d6cf;border-radius:50%;padding:3px;background:#fff;box-shadow:0 6px 14px #0000000a;display:block;overflow:hidden}
+.highlightImageWrap img{width:100%;height:100%;display:block;object-fit:cover;border-radius:50%}
+.highlightName{font:400 10px/1.1 Georgia,serif;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:82px}
+@media(max-width:560px){.stoneHighlights{gap:24px;padding:24px 18px 28px}.stoneHighlight{flex-basis:78px}.highlightImageWrap{width:64px;height:64px}.highlightName{font-size:9px}}
