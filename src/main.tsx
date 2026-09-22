@@ -1,287 +1,39 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { createRoot } from 'react-dom/client';
-import * as THREE from 'three';
-import './styles.css';
+import React,{useEffect,useMemo,useRef,useState}from'react';
+import{createRoot}from'react-dom/client';
+import*as THREE from'three';
+import'./styles.css';
 
-type Gem = {
-  id: string;
-  name: string;
-  family: string;
-  color: string;
-  accent: string;
-  shape: 'diamond' | 'emerald' | 'oval' | 'cushion';
-  intro: string;
-};
+const HERO='https://res.cloudinary.com/wholetv/image/upload/v1790069674/wvvcl7fyntc9uewwoe3z.webp';
+const HERO_VIDEO='https://res.cloudinary.com/wholetv/video/upload/v1784040316/zdgx29xmmjf7q9dmrcpu.mp4';
+const stones=[
+['Opal',['White','Fire','Crystal','Black','Green']],['Pearl',['Natural']],['Tiger eye',['Natural']],['Cat eye',['Natural']],['Amethyst',['Natural']],['Rock crystal',['Natural']],['Matura Diamond',['Natural']],['Starlite',['Natural']],['Jacinth',['Natural']],['Jargoon',['Natural']],['Malacon',['Natural']],['Emerald',['Vivid Green','Bluish-Green','Yellowish-Green']],['Ruby',['Pigeon Blood','Vivid Red','Purplish-Red','Orangey-Red','Deep Red']],['Lapis Lazuli',['Natural']],['Spinel',['Royal Blue','Nocturnal Sky','Evening Sky','Denim Lapis']],['Moonstone',['Natural']],['Black onyx',['Natural']],['Agate',['Red','Blue','Green','Purple','Yellow + Orange','Black + Gray','White + Brown']]
+].map(([name,variants],i)=>({id:i,name,variants}));
 
-const gems: Gem[] = [
-  { id: 'diamond', name: 'Diamond', family: 'Pure white', color: '#e7eef3', accent: '#afc9d9', shape: 'diamond', intro: 'Bright, clear and almost weightless beneath the light.' },
-  { id: 'sapphire', name: 'Blue Sapphire', family: 'Ceylon blue', color: '#506cae', accent: '#a6bbec', shape: 'oval', intro: 'A deep blue surface with a cool, glass-like depth.' },
-  { id: 'emerald', name: 'Emerald', family: 'Colombian green', color: '#63a37c', accent: '#b5dcc2', shape: 'emerald', intro: 'Quiet mineral green, built around clean geometry.' },
-  { id: 'ruby', name: 'Ruby', family: 'Crimson red', color: '#b85d68', accent: '#efadb5', shape: 'cushion', intro: 'A concentrated red that catches the light slowly.' },
-  { id: 'tanzanite', name: 'Tanzanite', family: 'Violet blue', color: '#7477bf', accent: '#c2c6fa', shape: 'diamond', intro: 'A shifting violet-blue study with a nocturnal character.' },
-];
+function Scene({resetSignal}:{resetSignal:number}){const ref=useRef<HTMLDivElement>(null);const state=useRef({x:0,y:0,targetX:0,targetY:0,reset:0});useEffect(()=>{const el=ref.current;if(!el)return;const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(25,1,.1,100);camera.position.z=5;const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.setSize(el.clientWidth,el.clientHeight,false);el.appendChild(renderer.domElement);
+const tex=new THREE.TextureLoader().load(HERO);tex.colorSpace=THREE.SRGBColorSpace;
+const group=new THREE.Group();scene.add(group);
+const plane=new THREE.Mesh(new THREE.PlaneGeometry(2.35,1.76,48,36),new THREE.MeshBasicMaterial({map:tex,transparent:true}));group.add(plane);
+const stoneGroup=new THREE.Group();group.add(stoneGroup);const mats=['#d9e1e4','#c7d0d5','#e5e0dc','#b9c7ce'];for(let i=0;i<18;i++){const g=new THREE.IcosahedronGeometry(.035+Math.random()*.075,2),m=new THREE.MeshPhysicalMaterial({color:mats[i%4],roughness:.16,metalness:.02,transmission:.15,clearcoat:1});const s=new THREE.Mesh(g,m);const a=Math.random()*Math.PI*2,r=.72+Math.random()*.78;s.position.set(Math.cos(a)*r,(Math.random()-.5)*.75,Math.sin(a)*.3);stoneGroup.add(s)}
+scene.add(new THREE.AmbientLight(0xffffff,2));const light=new THREE.DirectionalLight(0xffffff,4);light.position.set(2,3,5);scene.add(light);
+const resize=()=>{renderer.setSize(el.clientWidth,el.clientHeight,false);camera.aspect=el.clientWidth/el.clientHeight;camera.updateProjectionMatrix()};const ro=new ResizeObserver(resize);ro.observe(el);
+const move=(e:PointerEvent)=>{const r=el.getBoundingClientRect();state.current.targetY=(e.clientX/r.width-.5)*.18;state.current.targetX=(e.clientY/r.height-.5)*-.1};el.addEventListener('pointermove',move);
+let frame=0,last=performance.now();const animate=(now:number)=>{const dt=Math.min((now-last)/1000,.04);last=now;state.current.x+=(state.current.targetX-state.current.x)*.06;state.current.y+=(state.current.targetY-state.current.y)*.06;group.rotation.x=state.current.x;group.rotation.y+=dt*.16+state.current.y*.002;group.position.y=Math.sin(now*.0007)*.025;stoneGroup.rotation.y+=dt*.22;renderer.render(scene,camera);frame=requestAnimationFrame(animate)};frame=requestAnimationFrame(animate);
+return()=>{cancelAnimationFrame(frame);ro.disconnect();el.removeEventListener('pointermove',move);tex.dispose();plane.geometry.dispose();(plane.material as THREE.Material).dispose();stoneGroup.children.forEach(x=>{x.geometry.dispose();(x.material as THREE.Material).dispose()});renderer.dispose();el.innerHTML=''}},[resetSignal]);return <div className="scene" ref={ref}/>}
 
-function StoneScene({ gem }: { gem: Gem }) {
-  const mount = useRef<HTMLDivElement | null>(null);
-  const pointer = useRef({ x: 0.18, y: 0.08 });
-  const rotation = useRef({ x: 0.18, y: 0.08 });
+function Privacy({onChoice}:{onChoice:(v:'accept'|'deny')=>void}){return <div className="privacy"><div className="privacyCard"><span className="mini">PRIVACY</span><h2>Your privacy, clearly.</h2><p>Opal uses essential storage to remember preferences and keep the experience consistent. Optional analytics can remain disabled.</p><div><button onClick={()=>onChoice('deny')}>Deny optional</button><button className="dark" onClick={()=>onChoice('accept')}>Accept</button></div></div></div>}
 
-  useEffect(() => {
-    const node = mount.current;
-    if (!node) return;
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(25, 1, 0.1, 100);
-    camera.position.set(0, 0.1, 5.2);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.08;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x000000, 0);
-    node.appendChild(renderer.domElement);
-
-    const group = new THREE.Group();
-    scene.add(group);
-    scene.add(new THREE.AmbientLight(0xffffff, 1.75));
-
-    const key = new THREE.DirectionalLight(new THREE.Color(gem.accent), 5.4);
-    key.position.set(2.5, 3.8, 4.7);
-    scene.add(key);
-
-    const edge = new THREE.PointLight(0xffffff, 12, 12);
-    edge.position.set(-3, 1.2, 3.4);
-    scene.add(edge);
-
-    const material = new THREE.MeshPhysicalMaterial({
-      color: gem.color,
-      roughness: 0.035,
-      clearcoat: 1,
-      clearcoatRoughness: 0.025,
-      transmission: gem.id === 'diamond' ? 0.94 : 0.5,
-      thickness: 0.75,
-      ior: gem.id === 'diamond' ? 2.1 : 1.6,
-      transparent: true,
-      opacity: 0.98,
-    });
-
-    let geometry: THREE.BufferGeometry;
-    if (gem.shape === 'diamond') geometry = new THREE.OctahedronGeometry(1.08, 2);
-    else if (gem.shape === 'emerald') geometry = new THREE.BoxGeometry(1.55, 1.12, 1.0, 2, 2, 2);
-    else if (gem.shape === 'cushion') geometry = new THREE.IcosahedronGeometry(1.13, 2);
-    else geometry = new THREE.SphereGeometry(1.12, 32, 20);
-
-    const stone = new THREE.Mesh(geometry, material);
-    if (gem.shape === 'emerald') stone.rotation.z = 0.08;
-    stone.scale.set(1, 1.12, 0.9);
-    group.add(stone);
-
-    const halo = new THREE.Mesh(
-      new THREE.RingGeometry(1.52, 1.54, 128),
-      new THREE.MeshBasicMaterial({ color: new THREE.Color(gem.accent), transparent: true, opacity: 0.16, side: THREE.DoubleSide }),
-    );
-    halo.rotation.x = Math.PI / 2;
-    group.add(halo);
-
-    const particlesGeo = new THREE.BufferGeometry();
-    const positions = new Float32Array(120 * 3);
-    for (let i = 0; i < 120; i += 1) {
-      const r = 1.9 + Math.random() * 1.4;
-      const a = Math.random() * Math.PI * 2;
-      positions[i * 3] = Math.cos(a) * r;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 2.8;
-      positions[i * 3 + 2] = Math.sin(a) * r;
-    }
-    particlesGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-    const particles = new THREE.Points(
-      particlesGeo,
-      new THREE.PointsMaterial({ color: new THREE.Color(gem.accent), size: 0.018, transparent: true, opacity: 0.44, depthWrite: false }),
-    );
-    group.add(particles);
-
-    const resize = () => {
-      const width = node.clientWidth || 1;
-      const height = node.clientHeight || 1;
-      renderer.setSize(width, height, false);
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-    };
-
-    const onMove = (event: PointerEvent) => {
-      const rect = node.getBoundingClientRect();
-      pointer.current.y = ((event.clientX - rect.left) / rect.width - 0.5) * 0.64;
-      pointer.current.x = 0.14 + ((event.clientY - rect.top) / rect.height - 0.5) * 0.22;
-    };
-
-    const onLeave = () => {
-      pointer.current.x = 0.14;
-      pointer.current.y = 0.18;
-    };
-
-    const observer = new ResizeObserver(resize);
-    observer.observe(node);
-    node.addEventListener('pointermove', onMove);
-    node.addEventListener('pointerleave', onLeave);
-    resize();
-
-    let frame = 0;
-    const start = performance.now();
-    const animate = (now: number) => {
-      const t = (now - start) * 0.001;
-      rotation.current.x += (pointer.current.x - rotation.current.x) * 0.05;
-      rotation.current.y += (pointer.current.y - rotation.current.y) * 0.05;
-      group.rotation.x = rotation.current.x + Math.sin(t * 0.7) * 0.028;
-      group.rotation.y = rotation.current.y + t * 0.11;
-      group.position.y = Math.sin(t * 0.82) * 0.065;
-      halo.rotation.z = t * 0.14;
-      particles.rotation.y = t * 0.025;
-      renderer.render(scene, camera);
-      frame = requestAnimationFrame(animate);
-    };
-    frame = requestAnimationFrame(animate);
-
-    return () => {
-      cancelAnimationFrame(frame);
-      observer.disconnect();
-      node.removeEventListener('pointermove', onMove);
-      node.removeEventListener('pointerleave', onLeave);
-      geometry.dispose();
-      material.dispose();
-      halo.geometry.dispose();
-      halo.material.dispose();
-      particlesGeo.dispose();
-      particles.material.dispose();
-      renderer.dispose();
-      renderer.domElement.remove();
-    };
-  }, [gem]);
-
-  return <div className="stoneScene" ref={mount} aria-label={gem.name + ' animated 3D stone'} />;
-}
-
-function App() {
-  const [active, setActive] = useState(gems[0]);
-  const [search, setSearch] = useState('');
-  const [drawerOpen, setDrawerOpen] = useState(false);
-
-  const filtered = useMemo(
-    () => gems.filter((gem) => gem.name.toLowerCase().includes(search.toLowerCase()) || gem.family.toLowerCase().includes(search.toLowerCase())),
-    [search],
-  );
-
-  return (
-    <main className="app">
-      <header className="header">
-        <a className="brand" href="#top">OPAL<span> / STONES</span></a>
-        <nav className="nav">
-          <a href="#collection">COLLECTION</a>
-          <a href="#atelier">ATELIER</a>
-          <a href="#sourcing">SOURCING</a>
-        </nav>
-        <div className="headerTools">
-          <label className="search">
-            <span>⌕</span>
-            <input aria-label="Search stones" placeholder="Search" value={search} onChange={(e) => setSearch(e.target.value)} />
-          </label>
-          <button className="outlineSmall" onClick={() => setDrawerOpen(true)}>PRIVATE INQUIRY ↗</button>
-        </div>
-      </header>
-
-      <section id="top" className="hero">
-        <div className="heroCopy">
-          <p className="eyebrow">LOOSE STONES · DIAMONDS · GEMSTONES</p>
-          <h1>Measured<br /><i>purity.</i></h1>
-          <p className="heroSub">A digital atelier where exceptional stones are shown as material first — their cut, color, surface and light left completely unobstructed.</p>
-          <div className="heroBottom">
-            <a className="blackButton" href="#collection">DISCOVER THE COLLECTION <span>↘</span></a>
-            <span className="pageNo">01 / 05</span>
-          </div>
-          <div className="microMeta">
-            <span>NO SETTINGS</span><span>NO JEWELRY</span><span>ONLY STONE</span>
-          </div>
-        </div>
-        <div className="heroVisual">
-          <div className="visualNote">SPECIMEN / 03D</div>
-          <StoneScene gem={active} />
-          <div className="visualInfo">
-            <span>{active.family}</span>
-            <strong>{active.name}</strong>
-            <small>{active.intro}</small>
-          </div>
-          <div className="orbit orbit1" />
-          <div className="orbit orbit2" />
-        </div>
-      </section>
-
-      <section className="statement"><div>LIGHT / FORM / DEPTH / FIRE /</div><div>LIGHT / FORM / DEPTH / FIRE /</div></section>
-
-      <section id="collection" className="collection">
-        <div className="sectionTop">
-          <div><p className="eyebrow">THE COLLECTION</p><h2>Pure material,<br /><i>carefully framed.</i></h2></div>
-          <p>Tap a stone to bring it into the hero. The collection is intentionally spare so color, geometry and light remain the story.</p>
-        </div>
-        <div className="cards">
-          {filtered.map((gem, index) => (
-            <button key={gem.id} className={'card ' + (active.id === gem.id ? 'active' : '')} onClick={() => setActive(gem)}>
-              <span className="cardIndex">0{index + 1}</span>
-              <div className="cardStone" style={{ '--tone': gem.color, '--accent': gem.accent } as React.CSSProperties}><i /></div>
-              <div className="cardText"><small>{gem.family}</small><strong>{gem.name}</strong></div>
-              <span className="cardArrow">↗</span>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section id="atelier" className="atelier">
-        <div className="atelierVisual">
-          <p>THE STONE, BEFORE THE OBJECT</p>
-          <div className="atelierStone" style={{ '--tone': active.color, '--accent': active.accent } as React.CSSProperties}><i /></div>
-          <div className="atelierCross x" /><div className="atelierCross y" />
-        </div>
-        <div className="atelierCopy">
-          <p className="eyebrow">THE ATELIER</p>
-          <h2>Nothing between<br /><i>you and the material.</i></h2>
-          <p className="copy">The interface stays quiet on purpose. White space, fine lines, restrained color and gentle motion let the stone carry the visual weight.</p>
-          <div className="detailRows">
-            <div><span>01</span><strong>Loose-stone first</strong><em>no settings / no jewelry</em></div>
-            <div><span>02</span><strong>Interactive form</strong><em>Three.js specimen view</em></div>
-            <div><span>03</span><strong>Private sourcing</strong><em>availability confirmed separately</em></div>
-          </div>
-        </div>
-      </section>
-
-      <section id="sourcing" className="sourcing">
-        <div>
-          <p className="eyebrow">PRIVATE SOURCING</p>
-          <h2>Searching for<br /><i>a particular stone?</i></h2>
-          <p>Tell us the stone family, color, shape, size or other criteria. This is a request interface — no stock, pricing or certification is fabricated.</p>
-          <button className="blackButton" onClick={() => setDrawerOpen(true)}>START A PRIVATE INQUIRY <span>↗</span></button>
-        </div>
-        <div className="sourcingGraphic"><div className="circle c1" /><div className="circle c2" /><div className="circle c3" /><span>{active.name}</span></div>
-      </section>
-
-      <footer className="footer">
-        <a className="brand" href="#top">OPAL<span> / STONES</span></a>
-        <span>LOOSE STONES ONLY · MATERIAL / LIGHT / FORM</span>
-        <a href="#top">BACK TO TOP ↑</a>
-      </footer>
-
-      {drawerOpen && (
-        <div className="modalBackdrop" role="presentation">
-          <form className="modal" onSubmit={(e) => { e.preventDefault(); setDrawerOpen(false); }}>
-            <button type="button" className="close" aria-label="Close" onClick={() => setDrawerOpen(false)}>×</button>
-            <p className="eyebrow">PRIVATE INQUIRY</p>
-            <h3>Find the right<br /><i>material.</i></h3>
-            <label>STONE<input value={active.name} readOnly /></label>
-            <label>YOUR NOTE<textarea placeholder="Color, shape, size, source, or anything else that matters." /></label>
-            <button className="blackButton" type="submit">SAVE REQUEST DRAFT <span>↗</span></button>
-          </form>
-        </div>
-      )}
-    </main>
-  );
-}
-
-createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);
+function App(){const[page,setPage]=useState(location.hash.slice(1)||'home');const[query,setQuery]=useState('');const[active,setActive]=useState(stones[0]);const[reset,setReset]=useState(0);const[privacy,setPrivacy]=useState(localStorage.getItem('opal-privacy')?'done':'');useEffect(()=>{const f=()=>setPage(location.hash.slice(1)||'home');addEventListener('hashchange',f);return()=>removeEventListener('hashchange',f)},[]);
+const filtered=useMemo(()=>stones.filter(s=>s.name.toLowerCase().includes(query.toLowerCase())),[query]);
+const nav=(p:string)=>{location.hash=p;setPage(p);scrollTo({top:0,behavior:'smooth'})};
+const choice=(v:'accept'|'deny')=>{localStorage.setItem('opal-privacy',v);setPrivacy('done')};
+return <div className="site">
+<header><button className="logo" onClick={()=>nav('home')}>Opal</button><nav><button onClick={()=>nav('categories')}>Categories</button><button onClick={()=>nav('search')}>Search</button><button onClick={()=>nav('about')}>About</button><button onClick={()=>nav('story')}>Story</button><button onClick={()=>nav('policies')}>Policies</button></nav><button className="searchBtn" onClick={()=>nav('search')}>⌕</button></header>
+{page==='home'&&<><section className="hero"><div className="heroPoster"><img src={HERO} alt="Opal hero" /><div className="posterMotion"/><div className="posterStones">{[0,1,2,3,4].map(i=><i key={i}/>)}</div><button className="reset" onClick={()=>setReset(x=>x+1)} aria-label="Replay motion"><span>↻</span></button></div><div className="heroScene"><Scene resetSignal={reset}/><div className="heroStoneLabel">{active.name}</div></div><div className="heroBottom"><span>LOOSE STONES</span><button onClick={()=>nav('categories')}>EXPLORE</button><span>SCROLL ↓</span></div></section><section className="strip">{['LIGHT','FORM','DEPTH','COLOR','ORIGIN'].map(x=><span key={x}>{x}</span>)}</section><section className="feature"><div><span className="mini">THE COLLECTION</span><h1>Stone first.<br/><i>Everything else second.</i></h1></div><p>Opal is a quiet catalogue for exceptional loose stones. No jewelry settings, no noisy effects — only material, movement and detail.</p></section><section className="stoneGrid">{stones.slice(0,8).map(s=><button key={s.id} onClick={()=>{setActive(s);nav('product')}}><span>0{s.id+1}</span><div className="fakeStone"><i/></div><strong>{s.name}</strong><small>{s.variants.join(' · ')}</small></button>)}</section></>}
+{page==='categories'&&<Page title="Categories" kicker="COLLECTION"><div className="categoryList">{stones.map(s=><button key={s.id} onClick={()=>{setActive(s);nav('product')}}><span>{String(s.id+1).padStart(2,'0')}</span><strong>{s.name}</strong><em>{s.variants.length} variants</em><b>↗</b></button>)}</div></Page>}
+{page==='search'&&<Page title="Search" kicker="FIND A STONE"><div className="searchPage"><input autoFocus placeholder="Search stone or variant" value={query} onChange={e=>setQuery(e.target.value)}/><div className="results">{filtered.map(s=><button key={s.id} onClick={()=>{setActive(s);nav('product')}}><strong>{s.name}</strong><span>{s.variants.join(' · ')}</span></button>)}</div></div></Page>}
+{page==='product'&&<Page title={active.name} kicker="SPECIMEN"><div className="product"><div className="productVisual"><Scene resetSignal={reset}/><button className="replay" onClick={()=>setReset(x=>x+1)}>Replay motion ↻</button></div><div className="productInfo"><span className="mini">VARIANTS</span>{active.variants.map(v=><button key={v}>{v}</button>)}<p>Loose stone presentation. Media, availability, dimensions and provenance can be maintained from the Opal Admin control room.</p><button className="darkBtn">Private inquiry ↗</button></div></div></Page>}
+{['about','story','policies'].includes(page)&&<Page title={page==='about'?'About':page==='story'?'Story':'Policies'} kicker="OPAL"><article className="article">{page==='about'?<><h2>A digital home for the stone itself.</h2><p>Opal is designed around loose material: color, cut, texture, light and movement. The interface deliberately stays white, restrained and tactile.</p></>:page==='story'?<><h2>Material before object.</h2><p>The story begins before a stone becomes jewelry. Collections are organized by material and variation so the specimen remains the subject.</p></>:<><h2>Clear by default.</h2><h3>Privacy</h3><p>Essential preference storage may be used to remember your privacy choice. Optional analytics are not enabled by this interface.</p><h3>Shipping & returns</h3><p>Terms, shipping and returns are confirmed per order and should never be represented as universal promises without a configured commerce policy.</p><h3>Authenticity</h3><p>Product claims, certificates and provenance must be attached to the specific item and verified before publication.</p></>}</article></Page>}
+{privacy!=='done'&&<Privacy onChoice={choice}/>}
+</div>}
+function Page({title,kicker,children}:{title:string;kicker:string;children:React.ReactNode}){return <main className="page"><span className="mini">{kicker}</span><h1>{title}</h1>{children}</main>}
+createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);
