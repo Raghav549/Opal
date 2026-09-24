@@ -110,4 +110,4 @@ window.addEventListener('error',(e)=>console.error('OPAL runtime error',e.error|
 window.addEventListener('unhandledrejection',(e)=>console.error('OPAL unhandled rejection',e.reason));
 window.addEventListener('unhandledrejection',(e)=>console.error('OPAL promise error',e.reason));
 
-const root=document.getElementById('root');if(root)createRoot(root).render(<React.StrictMode><App/></React.StrictMode>);
+const root=document.getElementById('root');if(root)createRoot(root).render(<App/>);
