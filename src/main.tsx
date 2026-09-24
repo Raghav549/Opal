@@ -1,5 +1,6 @@
 import React,{useEffect,useState}from'react';
 import{createRoot}from'react-dom/client';
+import{flushSync}from'react-dom';
 import{createClient}from'@supabase/supabase-js';
 import'./styles.css';
 
@@ -123,8 +124,8 @@ const root=document.getElementById('root');
 if(root){
   root.innerHTML='<div id="opal-boot" style="min-height:100vh;background:#f5f2ea;color:#171716;display:grid;place-items:center;font-family:Arial,sans-serif"><div style="text-align:center"><div style="font:400 42px Georgia,serif">Opal</div><p style="margin-top:10px;color:#777">Opening the collection…</p></div></div>';
   try{
-    createRoot(root).render(<App/>);
-    queueMicrotask(()=>{if(root.querySelector('#opal-boot'))root.innerHTML='';});
+    const reactRoot=createRoot(root);
+    flushSync(()=>reactRoot.render(<App/>));
   }catch(error){
     console.error('OPAL_BOOT_ERROR',error);
     root.innerHTML='<div style="min-height:100vh;background:#f5f2ea;color:#171716;display:grid;place-items:center;font-family:Arial,sans-serif"><div style="max-width:560px;text-align:center;padding:32px"><div style="font:400 42px Georgia,serif">Opal</div><h1 style="font:400 28px Georgia,serif">The collection could not open.</h1><p style="color:#777;line-height:1.6">Please reload this page.</p></div></div>';
