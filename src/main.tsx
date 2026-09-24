@@ -1,4 +1,4 @@
-import React,{useEffect,useRef,useState}from'react';
+import React,{useEffect,useState}from'react';
 import{createRoot}from'react-dom/client';
 import{createClient}from'@supabase/supabase-js';
 import'./styles.css';
