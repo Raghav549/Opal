@@ -39,7 +39,7 @@ function readLocal(key:string,fallback:string){try{return localStorage.getItem(k
 function writeLocal(key:string,value:string){try{localStorage.setItem(key,value)}catch{}}
 
 function App(){
- const[page,setPage]=useState(()=>location.hash.slice(1)||'home');
+ const[page,setPage]=useState('home');
  const[active,setActive]=useState(stones[0] as any);
  const[query,setQuery]=useState('');
  const[cart,setCart]=useState<any[]>([]);
