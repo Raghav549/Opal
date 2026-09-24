@@ -1,7 +1,6 @@
 import React,{useEffect,useRef,useState}from'react';
 import{createRoot}from'react-dom/client';
 import{createClient}from'@supabase/supabase-js';
-import*as THREE from'three';
 import'./styles.css';
 
 const SUPABASE_URL='https://nzmsmdkezzgygmilokwz.supabase.co';
@@ -34,7 +33,7 @@ const knowledge:any = {
   'Black onyx':{origin:'Brazil, Uruguay, India',story:'Commercial black chalcedony or related quartz.',facts:'Color may be enhanced.',care:'Mild soap and water.'},
   Agate:{origin:'Brazil, Uruguay, Botswana, India, Mexico',story:'Layered or banded chalcedony.',facts:'Some vivid colors are dyed.',care:'Mild soap and water.'}
 };
-function Scene(){const ref=useRef<HTMLDivElement>(null);useEffect(()=>{const el=ref.current;if(!el)return;let renderer:THREE.WebGLRenderer|undefined;let frame=0;try{const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(25,1,.1,100);camera.position.z=5;renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(el.clientWidth,el.clientHeight,false);el.appendChild(renderer.domElement);const tex=new THREE.TextureLoader().load(HERO);const plane=new THREE.Mesh(new THREE.PlaneGeometry(2.35,1.76,32,24),new THREE.MeshBasicMaterial({map:tex,transparent:true}));scene.add(plane);const animate=()=>{if(!renderer)return;renderer.render(scene,camera);frame=requestAnimationFrame(animate)};frame=requestAnimationFrame(animate)}catch(err){console.warn('OPAL 3D disabled',err)}return()=>{if(frame)cancelAnimationFrame(frame);renderer?.dispose();if(el)el.innerHTML=''}},[]);return <div className="scene"><img src={HERO} alt="" aria-hidden="true" className="sceneFallback"/><div ref={ref} className="sceneCanvas"/></div>}
+function Scene(){return <div className="scene"><img src={HERO} alt="" aria-hidden="true" className="sceneFallback"/></div>}
 
 function readLocal(key:string,fallback:string){try{return localStorage.getItem(key)||fallback}catch{return fallback}}
 function writeLocal(key:string,value:string){try{localStorage.setItem(key,value)}catch{}}
