@@ -45,7 +45,7 @@ function App(){
  const[cart,setCart]=useState<any[]>([]);
  const[account,setAccount]=useState<any>(null);
  const[cookie,setCookie]=useState('');
- useEffect(()=>{try{setCart(JSON.parse(localStorage.getItem('opal-cart')||'[]'));setAccount(JSON.parse(localStorage.getItem('opal-account')||'null'));setCookie(localStorage.getItem('opal-cookie')||'')}catch{}},[]);
+ useEffect(()=>{try{setCart(JSON.parse(localStorage.getItem('opal-cart')||'[]'));setAccount(JSON.parse(localStorage.getItem('opal-account')||'null'));setCookie(localStorage.getItem('opal-cookie')||'')}catch{setCart([]);setAccount(null);setCookie('')}},[]);
  useEffect(()=>{try{localStorage.setItem('opal-cart',JSON.stringify(cart))}catch{}},[cart]);
  useEffect(()=>{try{localStorage.setItem('opal-account',JSON.stringify(account))}catch{}},[account]);
  useEffect(()=>{const h=()=>setPage(location.hash.slice(1)||'home');addEventListener('hashchange',h);return()=>removeEventListener('hashchange',h)},[]);
