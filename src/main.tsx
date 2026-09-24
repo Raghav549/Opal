@@ -9,6 +9,15 @@ let supabase:any=null;try{supabase=createClient(SUPABASE_URL,SUPABASE_KEY)}catch
 const HERO='https://res.cloudinary.com/wholetv/image/upload/v1790069674/wvvcl7fyntc9uewwoe3z.webp';
 const HERO_VIDEO='https://res.cloudinary.com/wholetv/video/upload/q_auto:good,vc_auto/v1790087679/bxtfxreuil7llicuzmhe.mp4';
 const stoneImages=['https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=900&q=85','https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?auto=format&fit=crop&w=900&q=85','https://images.unsplash.com/photo-1547996160-81dfa63595aa?auto=format&fit=crop&w=900&q=85','https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=900&q=85'];
+
+// Fail-safe boot: the storefront must never remain an empty #root if a client-side exception occurs.
+const BOOT_VERSION='2026-09-24-b';
+function showBootError(message:string){
+  const root=document.getElementById('root');
+  if(!root)return;
+  root.innerHTML='<div style="min-height:100vh;display:grid;place-items:center;padding:32px;background:#f5f2ea;color:#171716;font-family:Arial,sans-serif"><div style="max-width:520px;text-align:center"><div style="font:italic 34px Georgia,serif;margin-bottom:16px">Opal</div><h1 style="font:400 30px Georgia,serif;margin:0 0 10px">Loading the collection…</h1><p style="margin:0;color:#777;line-height:1.6">The storefront hit a client-side loading error. Please reload the page.</p></div></div>';
+  root.dataset.bootError=message;
+}
 const stones=[
 ['Opal',['White','Fire','Crystal','Black','Green']],['Pearl',['Natural']],['Tiger eye',['Natural']],['Cat eye',['Natural']],['Amethyst',['Natural']],['Rock crystal',['Natural']],['Matura Diamond',['Natural']],['Starlite',['Natural']],['Jacinth',['Natural']],['Jargoon',['Natural']],['Malacon',['Natural']],['Emerald',['Vivid Green','Bluish-Green','Yellowish-Green']],['Ruby',['Pigeon Blood','Vivid Red','Purplish-Red','Orangey-Red','Deep Red']],['Lapis Lazuli',['Natural']],['Spinel',['Royal Blue','Nocturnal Sky','Evening Sky','Denim Lapis']],['Moonstone',['Natural']],['Black onyx',['Natural']],['Agate',['Red','Blue','Green','Purple','Yellow + Orange','Black + Gray','White + Brown']]
 ].map(([name,variants],i)=>({id:i,name,variants}));
@@ -109,4 +118,8 @@ window.addEventListener('error',(e)=>console.error('OPAL runtime error',e.error|
 window.addEventListener('unhandledrejection',(e)=>console.error('OPAL unhandled rejection',e.reason));
 window.addEventListener('unhandledrejection',(e)=>console.error('OPAL promise error',e.reason));
 
-const root=document.getElementById('root');if(root)createRoot(root).render(<App/>);
+const root=document.getElementById('root');
+if(root){
+  try{createRoot(root).render(<App/>);}
+  catch(error){console.error('OPAL_BOOT_ERROR',error);showBootError(String(error));}
+}
