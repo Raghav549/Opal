@@ -5,7 +5,8 @@ import'./styles.css';
 
 const SUPABASE_URL='https://nzmsmdkezzgygmilokwz.supabase.co';
 const SUPABASE_KEY='sb_publishable_d_zGXn-S8wPivhd2EKmQPQ_KAL2d5iC';
-let supabase:any=null;try{supabase=createClient(SUPABASE_URL,SUPABASE_KEY)}catch(e){console.warn('Supabase unavailable',e)}
+let supabase:any=null;
+try{supabase=createClient(SUPABASE_URL,SUPABASE_KEY)}catch(e){console.warn('Supabase unavailable',e)}
 const HERO='https://res.cloudinary.com/wholetv/image/upload/v1790069674/wvvcl7fyntc9uewwoe3z.webp';
 const HERO_VIDEO='https://res.cloudinary.com/wholetv/video/upload/q_auto:good,vc_auto/v1790087679/bxtfxreuil7llicuzmhe.mp4';
 const stoneImages=['https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=900&q=85','https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?auto=format&fit=crop&w=900&q=85','https://images.unsplash.com/photo-1547996160-81dfa63595aa?auto=format&fit=crop&w=900&q=85','https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=900&q=85'];
