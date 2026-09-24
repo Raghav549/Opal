@@ -48,8 +48,8 @@ function App(){
  useEffect(()=>{try{setCart(JSON.parse(localStorage.getItem('opal-cart')||'[]'));setAccount(JSON.parse(localStorage.getItem('opal-account')||'null'));setCookie(localStorage.getItem('opal-cookie')||'')}catch{setCart([]);setAccount(null);setCookie('')}},[]);
  useEffect(()=>{try{localStorage.setItem('opal-cart',JSON.stringify(cart))}catch{}},[cart]);
  useEffect(()=>{try{localStorage.setItem('opal-account',JSON.stringify(account))}catch{}},[account]);
- useEffect(()=>{const h=()=>setPage(location.hash.slice(1)||'home');addEventListener('hashchange',h);return()=>removeEventListener('hashchange',h)},[]);
- const nav=(p:string)=>{location.hash=p;window.scrollTo(0,0)};
+ useEffect(()=>{const h=()=>setPage(location.hash.slice(1)||'home');addEventListener('hashchange',h);addEventListener('popstate',h);return()=>{removeEventListener('hashchange',h);removeEventListener('popstate',h)}},[]);
+ const nav=(p:string)=>{history.pushState({},'',p==='home'?'/' : '#'+p);setPage(p);window.scrollTo({top:0,behavior:'auto'})};
  const hold=(v:string,i:number)=>{setCart(x=>x.concat([{name:active.name,variant:v,price:1500+i*650,image:stoneImages[(active.id+i)%stoneImages.length]}]));nav('cart')};
  const filtered=stones.filter((s:any)=>String(s.name+' '+s.variants.join(' ')).toLowerCase().includes(query.toLowerCase()));
  return <div className="site">
