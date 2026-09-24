@@ -4,8 +4,8 @@ import{createClient}from'@supabase/supabase-js';
 import*as THREE from'three';
 import'./styles.css';
 
-const SUPABASE_URL='https://jvfmptusadipzdouofdb.supabase.co';
-const SUPABASE_KEY='sb_publishable_6Ph-e9YCY3aeEjxfrPqK0g_YwodZsnv';
+const SUPABASE_URL='https://nzmsmdkezzgygmilokwz.supabase.co';
+const SUPABASE_KEY='sb_publishable_d_zGXn-S8wPivhd2EKmQPQ_KAL2d5iC';
 let supabase:any=null;try{supabase=createClient(SUPABASE_URL,SUPABASE_KEY)}catch(e){console.warn('Supabase unavailable',e)}
 const HERO='https://res.cloudinary.com/wholetv/image/upload/v1790069674/wvvcl7fyntc9uewwoe3z.webp';
 const HERO_VIDEO='https://res.cloudinary.com/wholetv/video/upload/q_auto:good,vc_auto/v1790087679/bxtfxreuil7llicuzmhe.mp4';
