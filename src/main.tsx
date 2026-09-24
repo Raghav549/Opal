@@ -129,14 +129,16 @@ window.addEventListener('error',(e)=>console.error('OPAL runtime error',e.error|
 window.addEventListener('unhandledrejection',(e)=>console.error('OPAL unhandled rejection',e.reason));
 window.addEventListener('unhandledrejection',(e)=>console.error('OPAL promise error',e.reason));
 
-const root=document.getElementById('root');
+const root=document.getElementById('opal-app')||document.getElementById('root');
 if(root){
-  root.innerHTML='<div id="opal-boot" style="min-height:100vh;background:#f5f2ea;color:#171716;display:grid;place-items:center;font-family:Arial,sans-serif"><div style="text-align:center"><div style="font:400 42px Georgia,serif">Opal</div><p style="margin-top:10px;color:#777">Opening the collection…</p></div></div>';
   try{
     const reactRoot=createRoot(root);
     flushSync(()=>reactRoot.render(<App/>));
+    const fallback=document.getElementById('opal-static-home');
+    if(fallback)fallback.setAttribute('hidden','');
   }catch(error){
     console.error('OPAL_BOOT_ERROR',error);
-    root.innerHTML='<div style="min-height:100vh;background:#f5f2ea;color:#171716;display:grid;place-items:center;font-family:Arial,sans-serif"><div style="max-width:560px;text-align:center;padding:32px"><div style="font:400 42px Georgia,serif">Opal</div><h1 style="font:400 28px Georgia,serif">The collection could not open.</h1><p style="color:#777;line-height:1.6">Please reload this page.</p></div></div>';
+    const status=document.getElementById('opal-static-status');
+    if(status)status.textContent='Interactive mode could not start. The collection is still available in this static view.';
   }
 }
