@@ -7,8 +7,8 @@
 <meta name="description" content="OPAL — a refined digital atelier for loose diamonds and exceptional gemstones." />
 <title>OPAL — Loose Stones</title>
 </head>
-<body>
-<div id="root">
+<body style="margin:0;background:#f5f2ea;color:#171716">
+<div id="root" style="min-height:100vh;background:#f5f2ea">
   <div id="opal-static-fallback" style="min-height:100vh;background:#f5f2ea;color:#171716;display:grid;place-items:center;font-family:Arial,sans-serif">
     <div style="text-align:center;padding:32px">
       <div style="font:400 42px Georgia,serif">Opal</div>
@@ -16,6 +16,28 @@
     </div>
   </div>
 </div>
+<script>
+(function(){
+  var root=document.getElementById('root');
+  var show=function(title,detail){
+    if(!root)return;
+    root.innerHTML='<div style="min-height:100vh;background:#f5f2ea;color:#171716;display:grid;place-items:center;font-family:Arial,sans-serif"><div style="max-width:620px;text-align:center;padding:32px"><div style="font:400 42px Georgia,serif">Opal</div><h1 style="font:400 28px Georgia,serif;margin:18px 0 10px">'+title+'</h1><p style="color:#777;line-height:1.6;margin:0">'+detail+'</p></div></div>';
+  };
+  window.addEventListener('error',function(e){
+    console.error('OPAL_EARLY_ERROR',e.error||e.message);
+    show('The collection could not open.','A browser error stopped the storefront from starting. Please reload once. If it happens again, this page has captured the startup failure.');
+  });
+  window.addEventListener('unhandledrejection',function(e){
+    console.error('OPAL_EARLY_REJECTION',e.reason);
+    show('The collection could not open.','A startup promise failed before the storefront finished loading. Please reload once.');
+  });
+  setTimeout(function(){
+    if(root && !root.textContent.trim()){
+      show('The collection did not start.','The storefront JavaScript did not mount. The deployment is serving the page, but the browser did not execute the app.');
+    }
+  },5000);
+})();
+</script>
 <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
