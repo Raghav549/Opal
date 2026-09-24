@@ -129,16 +129,42 @@ window.addEventListener('error',(e)=>console.error('OPAL runtime error',e.error|
 window.addEventListener('unhandledrejection',(e)=>console.error('OPAL unhandled rejection',e.reason));
 window.addEventListener('unhandledrejection',(e)=>console.error('OPAL promise error',e.reason));
 
+const fallback=document.getElementById('opal-static-home');
+const revealFallback=()=>{ 
+  if(fallback)fallback.removeAttribute('hidden');
+  const status=document.getElementById('opal-static-status');
+  if(status)status.textContent='Interactive mode could not stay active. The collection remains available in this view.';
+};
+window.addEventListener('error',revealFallback,true);
+window.addEventListener('unhandledrejection',revealFallback,true);
+
 const root=document.getElementById('opal-app')||document.getElementById('root');
 if(root){
   try{
     const reactRoot=createRoot(root);
     flushSync(()=>reactRoot.render(<App/>));
-    const fallback=document.getElementById('opal-static-home');
-    if(fallback)fallback.setAttribute('hidden','');
+    // Do not hide the server-rendered safety screen until the React app has
+    // actually produced visible content. This prevents a flash-then-blank
+    // screen if React commits and then fails during an effect.
+    requestAnimationFrame(()=>{
+      setTimeout(()=>{
+        try{
+          const app=document.getElementById('opal-app');
+          const site=app?.querySelector('.site');
+          const healthy=!!site && site.textContent?.trim().length>20 && site.getBoundingClientRect().height>100;
+          if(healthy){
+            if(fallback)fallback.setAttribute('hidden','');
+          }else{
+            revealFallback();
+          }
+        }catch(error){
+          console.error('OPAL_HEALTHCHECK_ERROR',error);
+          revealFallback();
+        }
+      },900);
+    });
   }catch(error){
     console.error('OPAL_BOOT_ERROR',error);
-    const status=document.getElementById('opal-static-status');
-    if(status)status.textContent='Interactive mode could not start. The collection is still available in this static view.';
+    revealFallback();
   }
 }
