@@ -34,25 +34,9 @@
     </div>
     <div id="opal-static-status" style="padding:14px 18px;text-align:center;background:#f5f2ea;color:#888;font-size:9px;letter-spacing:.08em">Opening the collection…</div>
   </section>
-  <div id="opal-app"></div>
 </div>
-<script>
-(function(){
-  var root=document.getElementById('root');
-  var show=function(title,detail){
-    var status=document.getElementById('opal-static-status');
-    if(status){status.textContent=title+' — '+detail;status.style.color='#7d6a58';}
-  };
-  window.addEventListener('error',function(e){
-    console.error('OPAL_EARLY_ERROR',e.error||e.message);
-    show('Startup error','interactive mode stopped; static collection remains visible');
-  });
-  window.addEventListener('unhandledrejection',function(e){
-    console.error('OPAL_EARLY_REJECTION',e.reason);
-    show('Startup error','interactive mode stopped; static collection remains visible');
-  });
-})();
-</script>
+<div id="opal-app"></div>
+
 <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
