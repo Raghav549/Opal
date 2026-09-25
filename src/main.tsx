@@ -71,7 +71,7 @@ function App(){
  useEffect(()=>{try{localStorage.setItem('opal-cart',JSON.stringify(cart))}catch{}},[cart]);
  useEffect(()=>{try{localStorage.setItem('opal-account',JSON.stringify(account))}catch{}},[account]);
  useEffect(()=>{const h=()=>setPage(location.hash.slice(1)||'home');addEventListener('hashchange',h);return()=>removeEventListener('hashchange',h)},[]);
- const nav=(p:string)=>{setPage(p);location.hash=p==='home'?'':p;window.scrollTo(0,0)};
+ const nav=(p:string)=>{const next=p==='home'?'':p;if((location.hash.slice(1)||'home')!==p){history.replaceState(null,'',next?'#'+next:'');}setPage(p);window.scrollTo({top:0,behavior:'auto'});};
  const hold=(v:string,i:number)=>{setCart(x=>x.concat([{name:active.name,variant:v,price:1500+i*650,image:stoneImages[(active.id+i)%stoneImages.length]}]));nav('cart')};
  const filtered=stones.filter((s:any)=>String(s.name+' '+s.variants.join(' ')).toLowerCase().includes(query.toLowerCase()));
  return <div className="site">
@@ -81,7 +81,7 @@ function App(){
    <button className="iconBtn" aria-label="Orders" onClick={()=>nav('orders')}><span className="ico orderIcon"/></button>
    <button className="iconBtn" aria-label="Account" onClick={()=>nav('account')}><span className="ico accountIcon"/></button>
   </div></header>
-  {page==='home'&&<><section className="hero"><div className="heroScene"><video className="heroVideo" src={HERO_VIDEO} autoPlay muted loop playsInline preload="auto" onCanPlay={e=>{e.currentTarget.muted=true;void e.currentTarget.play().catch(()=>{})}}/><Scene/></div><div className="heroBottom"><span>LOOSE STONES</span><button className="heroExplore" onClick={()=>nav('categories')}>EXPLORE</button><span>SCROLL ↓</span></div></section><section className="stoneHighlights" aria-label="Featured stones">{stones.slice(0,10).map((s:any)=><button className="stoneHighlight" key={s.id} onClick={()=>{setActive(s);nav('product')}}><span className="highlightImageWrap"><img src={stoneImages[s.id%stoneImages.length]} alt={s.name}/></span><span className="highlightName">{s.name}</span></button>)}</section><section className="stoneGrid">{stones.map((s:any)=><button key={s.id} onClick={()=>{setActive(s);nav('product')}}><span>{String(s.id+1).padStart(2,'0')}</span><img className="gridStoneImage" src={stoneImages[s.id%stoneImages.length]} alt={s.name}/><strong>{s.name}</strong><small>{s.variants.join(' · ')}</small></button>)}</section></>}
+  {page==='home'&&<><section className="hero"><div className="heroScene"><video className="heroVideo" src={HERO_VIDEO} poster={HERO} autoPlay muted loop playsInline preload="metadata" onLoadedData={e=>{e.currentTarget.muted=true;void e.currentTarget.play().catch(()=>{})}}/><Scene/></div><div className="heroBottom"><span>LOOSE STONES</span><button className="heroExplore" onClick={()=>nav('categories')}>EXPLORE</button><span>SCROLL ↓</span></div></section><section className="stoneHighlights" aria-label="Featured stones">{stones.slice(0,10).map((s:any)=><button className="stoneHighlight" key={s.id} onClick={()=>{setActive(s);nav('product')}}><span className="highlightImageWrap"><img src={stoneImages[s.id%stoneImages.length]} alt={s.name}/></span><span className="highlightName">{s.name}</span></button>)}</section><section className="stoneGrid">{stones.map((s:any)=><button key={s.id} onClick={()=>{setActive(s);nav('product')}}><span>{String(s.id+1).padStart(2,'0')}</span><img className="gridStoneImage" src={stoneImages[s.id%stoneImages.length]} alt={s.name}/><strong>{s.name}</strong><small>{s.variants.join(' · ')}</small></button>)}</section></>}
   {page==='categories'&&<Page title="Categories" kicker="COLLECTION"><div className="categoryList">{stones.map((s:any)=><button key={s.id} onClick={()=>{setActive(s);nav('product')}}><span>{String(s.id+1).padStart(2,'0')}</span><strong>{s.name}</strong><em>{s.variants.length} colours</em><b>↗</b></button>)}</div></Page>}
   {page==='search'&&<Page title="Search" kicker="FIND A STONE"><div className="searchPage"><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search a stone or colour"/><div className="results">{filtered.map((s:any)=><button key={s.id} onClick={()=>{setActive(s);nav('product')}}><strong>{s.name}</strong><span>{s.variants.join(' · ')}</span></button>)}</div></div></Page>}
   {page==='product'&&<Product active={active} onHold={hold} onNav={nav}/>}
@@ -120,7 +120,7 @@ function Policies({onNav}:{onNav:(p:string)=>void}){const sections=[['01 / LISTI
 function Orders(){const[orders,setOrders]=useState<any[]>([]);const[loading,setLoading]=useState(true);const[message,setMessage]=useState('');useEffect(()=>{(async()=>{const client=await ensureSupabase();if(!client){setMessage('Auth is unavailable.');setLoading(false);return}const{data:{user}}=await client.auth.getUser();if(!user){setMessage('Sign in to view your orders.');setLoading(false);return}const{data,error}=await client.from('opal_orders').select('id,status,payment_status,total,currency,created_at,opal_order_items(product_name,variant_name,quantity,line_total)').eq('user_id',user.id).order('created_at',{ascending:false});if(error)setMessage(error.message);setOrders(data||[]);setLoading(false)})()},[]);return <Page title="Orders" kicker="ACCOUNT"><div className="ordersPage"><div className="orderIntro"><span className="mini">ORDER HISTORY</span><h2>Your recent activity.</h2><p>Live orders and their current status are loaded from Opal.</p></div>{message&&<p className="authMessage">{message}</p>}{loading?<div className="emptyState"><h3>Loading orders…</h3></div>:orders.length?<div className="orderList">{orders.map((o:any)=><div className="orderCard" key={o.id}><div><span className="mini">{String(o.status).toUpperCase()}</span><h3>Order {o.id.slice(0,8)}</h3><p>{new Date(o.created_at).toLocaleString('en-IN')} · {o.payment_status} · ₹{Number(o.total).toLocaleString('en-IN')}</p>{(o.opal_order_items||[]).map((x:any)=><p key={x.product_name+x.variant_name}>{x.product_name} · {x.variant_name} × {x.quantity}</p>)}</div></div>)}</div>:<div className="emptyState"><h3>No orders yet.</h3></div>}</div></Page>}
 function Account({account,setAccount}:{account:any,setAccount:(x:any)=>void}){const[email,setEmail]=useState(account?.email||'');const[otp,setOtp]=useState('');const[name,setName]=useState(account?.name||'');const[mode,setMode]=useState(account?'profile':'signin');const[message,setMessage]=useState('');const[sending,setSending]=useState(false);const[verifying,setVerifying]=useState(false);
 const sendOtp=async()=>{if(sending)return;setMessage('');if(!email||!email.includes('@')){setMessage('Enter a valid email.');return}setSending(true);try{const client=await ensureSupabase();if(!client){setMessage('Auth is unavailable.');return}const{error}=await client.auth.signInWithOtp({email,options:{shouldCreateUser:true}});if(error)setMessage(error.message);else setMode('otp')}catch(e){setMessage(e instanceof Error?e.message:'Could not send OTP.')}finally{setSending(false)}};
-const verify=async()=>{if(verifying)return;setMessage('');if(!/^\\d{6}$/.test(otp)){setMessage('Enter the verification code.');return}setVerifying(true);try{const client=await ensureSupabase();if(!client){setMessage('Auth is unavailable.');return}const{data,error}=await client.auth.verifyOtp({email,token:otp,type:'email'});if(error){setMessage(error.message);return}const u={email:data.user?.email||email,name:name||data.user?.user_metadata?.name||'Opal customer'};setAccount(u);setMode('profile')}catch(e){setMessage(e instanceof Error?e.message:'Could not verify OTP.')}finally{setVerifying(false)}};
+const verify=async()=>{if(verifying)return;setMessage('');if(!/^\d{6,8}$/.test(otp)){setMessage('Enter the verification code.');return}setVerifying(true);try{const client=await ensureSupabase();if(!client){setMessage('Auth is unavailable.');return}const{data,error}=await client.auth.verifyOtp({email,token:otp,type:'email'});if(error){setMessage(error.message);return}const u={email:data.user?.email||email,name:name||data.user?.user_metadata?.name||'Opal customer'};setAccount(u);setMode('profile')}catch(e){setMessage(e instanceof Error?e.message:'Could not verify OTP.')}finally{setVerifying(false)}};
 return <Page title="Account" kicker={mode==='otp'?'VERIFY EMAIL':'OPAL'}><div className="accountPage">{mode==='signin'&&<div className="authCard"><h2>Sign in</h2><Field label="EMAIL" value={email} onChange={setEmail} placeholder="you@example.com"/>{message&&<p className="authMessage">{message}</p>}<button className="darkBtn" onClick={sendOtp} disabled={sending}>{sending?'Sending…':'Send OTP'}</button></div>}{mode==='otp'&&<div className="authCard"><h2>Verify email</h2><Field label="OTP" value={otp} onChange={setOtp} placeholder="6-digit code"/>{message&&<p className="authMessage">{message}</p>}<div className="authActions"><button className="darkBtn" onClick={verify} disabled={verifying}>{verifying?'Verifying…':'Verify & continue'}</button><button className="ghost3d" onClick={sendOtp} disabled={sending}>{sending?'Sending…':'Resend OTP'}</button></div></div>}{mode==='profile'&&<div className="accountCards"><div><span className="mini">PROFILE</span><h3>Personal details</h3><Field label="NAME" value={name} onChange={setName}/><Field label="EMAIL" value={email} onChange={setEmail}/><button className="darkBtn" onClick={()=>setAccount({email,name:name||'Opal customer'})}>Save changes</button></div><div><span className="mini">ORDERS</span><h3>Order history</h3><p>Orders, status events and tracking will appear here.</p><button className="ghost3d" onClick={()=>location.hash='orders'}>View orders</button></div></div>}</div></Page>}
 function Field({label,value,onChange,placeholder,type='text'}:{label:string,value:string,onChange:(v:string)=>void,placeholder?:string,type?:string}){return <label className="stepField"><span>{label}</span><input type={type} value={value} placeholder={placeholder} onChange={e=>onChange(e.target.value)} autoComplete="off"/></label>}
 function Checkout({items,onDone}:{items:any[],onDone:()=>void}){const[step,setStep]=useState(0);const[message,setMessage]=useState('');const[busy,setBusy]=useState(false);const[data,setData]=useState({email:'',otp:'',name:'',house1:'',house2:'',flat:'',pin:'',district:'',state:'',payment:'cod'});const labels=['Email','Verification','Name','House 1','House 2','Flat / No.','PIN & District','State','Payment','Confirm'];const set=(k:string,v:string)=>setData(d=>({...d,[k]:v}));const total=items.reduce((n,x)=>n+x.price,0);
@@ -140,30 +140,24 @@ window.addEventListener('unhandledrejection',(e)=>console.error('OPAL unhandled 
 window.addEventListener('unhandledrejection',(e)=>console.error('OPAL promise error',e.reason));
 
 const fallback=document.getElementById('opal-static-home');
-const revealFallback=()=>{ 
+const revealFallback=()=>{
   if(fallback)fallback.removeAttribute('hidden');
   const status=document.getElementById('opal-static-status');
-  if(status)status.textContent='Interactive mode could not stay active. The collection remains available in this view.';
+  if(status)status.textContent='The collection is available while interactive mode recovers.';
 };
-window.addEventListener('error',revealFallback,true);
-window.addEventListener('unhandledrejection',revealFallback,true);
 
-const root=document.getElementById('opal-app')||document.getElementById('root');
+const root=document.getElementById('opal-app');
 if(root){
   try{
     const reactRoot=createRoot(root);
     flushSync(()=>reactRoot.render(<App/>));
-    // Do not hide the server-rendered safety screen until the React app has
-    // actually produced visible content. This prevents a flash-then-blank
-    // screen if React commits and then fails during an effect.
     requestAnimationFrame(()=>{
-      setTimeout(()=>{
+      requestAnimationFrame(()=>{
         try{
-          const app=document.getElementById('opal-app');
-          const site=app?.querySelector('.site');
-          const healthy=!!site && site.textContent?.trim().length>20 && site.getBoundingClientRect().height>100;
+          const site=root.querySelector('.site');
+          const healthy=!!site && site.getBoundingClientRect().height>100;
           if(healthy){
-            if(fallback)fallback.setAttribute('hidden','');
+            if(fallback)fallback.remove();
           }else{
             revealFallback();
           }
@@ -171,7 +165,7 @@ if(root){
           console.error('OPAL_HEALTHCHECK_ERROR',error);
           revealFallback();
         }
-      },900);
+      });
     });
   }catch(error){
     console.error('OPAL_BOOT_ERROR',error);
