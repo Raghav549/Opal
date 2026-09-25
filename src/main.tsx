@@ -1,6 +1,5 @@
 import React,{useEffect,useState}from'react';
 import{createRoot}from'react-dom/client';
-import{flushSync}from'react-dom';
 import'./styles.css';
 
 const SITE_URL='https://opalshop.in';
@@ -81,7 +80,7 @@ function App(){
    <button className="iconBtn" aria-label="Orders" onClick={()=>nav('orders')}><span className="ico orderIcon"/></button>
    <button className="iconBtn" aria-label="Account" onClick={()=>nav('account')}><span className="ico accountIcon"/></button>
   </div></header>
-  {page==='home'&&<><section className="hero"><div className="heroScene"><video className="heroVideo" src={HERO_VIDEO} poster={HERO} autoPlay muted loop playsInline preload="metadata" onLoadedData={e=>{e.currentTarget.muted=true;void e.currentTarget.play().catch(()=>{})}}/><Scene/></div><div className="heroBottom"><span>LOOSE STONES</span><button className="heroExplore" onClick={()=>nav('categories')}>EXPLORE</button><span>SCROLL ↓</span></div></section><section className="stoneHighlights" aria-label="Featured stones">{stones.slice(0,10).map((s:any)=><button className="stoneHighlight" key={s.id} onClick={()=>{setActive(s);nav('product')}}><span className="highlightImageWrap"><img src={stoneImages[s.id%stoneImages.length]} alt={s.name}/></span><span className="highlightName">{s.name}</span></button>)}</section><section className="stoneGrid">{stones.map((s:any)=><button key={s.id} onClick={()=>{setActive(s);nav('product')}}><span>{String(s.id+1).padStart(2,'0')}</span><img className="gridStoneImage" src={stoneImages[s.id%stoneImages.length]} alt={s.name}/><strong>{s.name}</strong><small>{s.variants.join(' · ')}</small></button>)}</section></>}
+  {page==='home'&&<><section className="hero"><div className="heroScene"><video className="heroVideo" src={HERO_VIDEO} poster={HERO} autoPlay muted loop playsInline preload="none" onLoadedData={e=>{e.currentTarget.muted=true;void e.currentTarget.play().catch(()=>{})}}/><Scene/></div><div className="heroBottom"><span>LOOSE STONES</span><button className="heroExplore" onClick={()=>nav('categories')}>EXPLORE</button><span>SCROLL ↓</span></div></section><section className="stoneHighlights" aria-label="Featured stones">{stones.slice(0,10).map((s:any)=><button className="stoneHighlight" key={s.id} onClick={()=>{setActive(s);nav('product')}}><span className="highlightImageWrap"><img src={stoneImages[s.id%stoneImages.length]} alt={s.name}/></span><span className="highlightName">{s.name}</span></button>)}</section><section className="stoneGrid">{stones.map((s:any)=><button key={s.id} onClick={()=>{setActive(s);nav('product')}}><span>{String(s.id+1).padStart(2,'0')}</span><img className="gridStoneImage" src={stoneImages[s.id%stoneImages.length]} alt={s.name}/><strong>{s.name}</strong><small>{s.variants.join(' · ')}</small></button>)}</section></>}
   {page==='categories'&&<Page title="Categories" kicker="COLLECTION"><div className="categoryList">{stones.map((s:any)=><button key={s.id} onClick={()=>{setActive(s);nav('product')}}><span>{String(s.id+1).padStart(2,'0')}</span><strong>{s.name}</strong><em>{s.variants.length} colours</em><b>↗</b></button>)}</div></Page>}
   {page==='search'&&<Page title="Search" kicker="FIND A STONE"><div className="searchPage"><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search a stone or colour"/><div className="results">{filtered.map((s:any)=><button key={s.id} onClick={()=>{setActive(s);nav('product')}}><strong>{s.name}</strong><span>{s.variants.join(' · ')}</span></button>)}</div></div></Page>}
   {page==='product'&&<Product active={active} onHold={hold} onNav={nav}/>}
@@ -140,17 +139,30 @@ window.addEventListener('unhandledrejection',(e)=>console.error('OPAL unhandled 
 window.addEventListener('unhandledrejection',(e)=>console.error('OPAL promise error',e.reason));
 
 const fallback=document.getElementById('opal-static-home');
-const revealFallback=()=>{
-  if(fallback)fallback.removeAttribute('hidden');
+const root=document.getElementById('opal-app');
+
+const setBootState=(mode:string,message?:string)=>{
   const status=document.getElementById('opal-static-status');
-  if(status)status.textContent='The collection is available while interactive mode recovers.';
+  const app=document.getElementById('opal-app');
+  if(app)app.dataset.bootState=mode;
+  if(status&&message)status.textContent=message;
 };
 
-const root=document.getElementById('opal-app');
-if(root){
+window.addEventListener('error',(e)=>{
+  console.error('OPAL_RUNTIME_ERROR',e.error||e.message);
+  setBootState('fallback','Interactive mode hit an error. The collection remains available.');
+},true);
+window.addEventListener('unhandledrejection',(e)=>{
+  console.error('OPAL_UNHANDLED_REJECTION',e.reason);
+  setBootState('fallback','Interactive mode hit an error. The collection remains available.');
+},true);
+
+const bootReact=()=>{
+  if(!root)return;
   try{
+    setBootState('booting');
     const reactRoot=createRoot(root);
-    flushSync(()=>reactRoot.render(<App/>));
+    reactRoot.render(<App/>);
     requestAnimationFrame(()=>{
       requestAnimationFrame(()=>{
         try{
@@ -158,17 +170,25 @@ if(root){
           const healthy=!!site && site.getBoundingClientRect().height>100;
           if(healthy){
             if(fallback)fallback.remove();
+            setBootState('ready');
           }else{
-            revealFallback();
+            setBootState('fallback','The collection is available while interactive mode recovers.');
           }
         }catch(error){
           console.error('OPAL_HEALTHCHECK_ERROR',error);
-          revealFallback();
+          setBootState('fallback','The collection is available while interactive mode recovers.');
         }
       });
     });
   }catch(error){
     console.error('OPAL_BOOT_ERROR',error);
-    revealFallback();
+    setBootState('fallback','Interactive mode could not start. The collection remains available.');
   }
-}
+};
+
+// Give the browser one paint to establish the static collection, then boot React.
+if('requestIdleCallback' in window){
+  (window as any).requestIdleCallback(bootReact,{timeout:800});
+}else{
+  setTimeout(bootReact,0);
+};
