@@ -138,57 +138,20 @@ window.addEventListener('error',(e)=>console.error('OPAL runtime error',e.error|
 window.addEventListener('unhandledrejection',(e)=>console.error('OPAL unhandled rejection',e.reason));
 window.addEventListener('unhandledrejection',(e)=>console.error('OPAL promise error',e.reason));
 
-const fallback=document.getElementById('opal-static-home');
 const root=document.getElementById('opal-app');
-
-const setBootState=(mode:string,message?:string)=>{
-  const status=document.getElementById('opal-static-status');
-  const app=document.getElementById('opal-app');
-  if(app)app.dataset.bootState=mode;
-  if(status&&message)status.textContent=message;
-};
-
-window.addEventListener('error',(e)=>{
-  console.error('OPAL_RUNTIME_ERROR',e.error||e.message);
-  setBootState('fallback','Interactive mode hit an error. The collection remains available.');
-},true);
-window.addEventListener('unhandledrejection',(e)=>{
-  console.error('OPAL_UNHANDLED_REJECTION',e.reason);
-  setBootState('fallback','Interactive mode hit an error. The collection remains available.');
-},true);
-
-const bootReact=()=>{
-  if(!root)return;
+if(root){
   try{
-    setBootState('booting');
     const reactRoot=createRoot(root);
-    reactRoot.render(<App/>);
-    requestAnimationFrame(()=>{
-      requestAnimationFrame(()=>{
-        try{
-          const site=root.querySelector('.site');
-          const healthy=!!site && site.getBoundingClientRect().height>100;
-          if(healthy){
-            if(fallback)fallback.remove();
-            setBootState('ready');
-          }else{
-            setBootState('fallback','The collection is available while interactive mode recovers.');
-          }
-        }catch(error){
-          console.error('OPAL_HEALTHCHECK_ERROR',error);
-          setBootState('fallback','The collection is available while interactive mode recovers.');
-        }
-      });
-    });
+    // Boot after first paint; never replace/remove the server-rendered collection.
+    const start=()=>{
+      try{reactRoot.render(<App/>);}catch(error){console.error('OPAL_BOOT_ERROR',error);}
+    };
+    if('requestIdleCallback' in window){
+      (window as any).requestIdleCallback(start,{timeout:1200});
+    }else{
+      setTimeout(start,0);
+    }
   }catch(error){
-    console.error('OPAL_BOOT_ERROR',error);
-    setBootState('fallback','Interactive mode could not start. The collection remains available.');
+    console.error('OPAL_ROOT_ERROR',error);
   }
-};
-
-// Give the browser one paint to establish the static collection, then boot React.
-if('requestIdleCallback' in window){
-  (window as any).requestIdleCallback(bootReact,{timeout:800});
-}else{
-  setTimeout(bootReact,0);
 };
