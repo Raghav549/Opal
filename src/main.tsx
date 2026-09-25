@@ -54,7 +54,7 @@ const knowledge:any = {
   'Black onyx':{origin:'Brazil, Uruguay, India',story:'Commercial black chalcedony or related quartz.',facts:'Color may be enhanced.',care:'Mild soap and water.'},
   Agate:{origin:'Brazil, Uruguay, Botswana, India, Mexico',story:'Layered or banded chalcedony.',facts:'Some vivid colors are dyed.',care:'Mild soap and water.'}
 };
-function Scene(){return <div className="scene"><img src={HERO} alt="" aria-hidden="true" className="sceneFallback"/></div>}
+function Scene(){return <div className="scene"><img src={HERO} alt="" aria-hidden="true" className="sceneFallback" loading="lazy" decoding="async"/></div>}
 
 function readLocal(key:string,fallback:string){try{return localStorage.getItem(key)||fallback}catch{return fallback}}
 function writeLocal(key:string,value:string){try{localStorage.setItem(key,value)}catch{}}
@@ -80,7 +80,7 @@ function App(){
    <button className="iconBtn" aria-label="Orders" onClick={()=>nav('orders')}><span className="ico orderIcon"/></button>
    <button className="iconBtn" aria-label="Account" onClick={()=>nav('account')}><span className="ico accountIcon"/></button>
   </div></header>
-  {page==='home'&&<><section className="hero"><div className="heroScene"><video className="heroVideo" src={HERO_VIDEO} poster={HERO} autoPlay muted loop playsInline preload="none" onLoadedData={e=>{e.currentTarget.muted=true;void e.currentTarget.play().catch(()=>{})}}/><Scene/></div><div className="heroBottom"><span>LOOSE STONES</span><button className="heroExplore" onClick={()=>nav('categories')}>EXPLORE</button><span>SCROLL ↓</span></div></section><section className="stoneHighlights" aria-label="Featured stones">{stones.slice(0,10).map((s:any)=><button className="stoneHighlight" key={s.id} onClick={()=>{setActive(s);nav('product')}}><span className="highlightImageWrap"><img src={stoneImages[s.id%stoneImages.length]} alt={s.name}/></span><span className="highlightName">{s.name}</span></button>)}</section><section className="stoneGrid">{stones.map((s:any)=><button key={s.id} onClick={()=>{setActive(s);nav('product')}}><span>{String(s.id+1).padStart(2,'0')}</span><img className="gridStoneImage" src={stoneImages[s.id%stoneImages.length]} alt={s.name}/><strong>{s.name}</strong><small>{s.variants.join(' · ')}</small></button>)}</section></>}
+  {page==='home'&&<><section className="hero"><div className="heroScene"><video className="heroVideo" src={HERO_VIDEO} poster={HERO} muted loop playsInline preload="none" onLoadedData={e=>{e.currentTarget.muted=true;void e.currentTarget.play().catch(()=>{})}}/><Scene/></div><div className="heroBottom"><span>LOOSE STONES</span><button className="heroExplore" onClick={()=>nav('categories')}>EXPLORE</button><span>SCROLL ↓</span></div></section><section className="stoneHighlights" aria-label="Featured stones">{stones.slice(0,10).map((s:any)=><button className="stoneHighlight" key={s.id} onClick={()=>{setActive(s);nav('product')}}><span className="highlightImageWrap"><img src={stoneImages[s.id%stoneImages.length]} alt={s.name}/></span><span className="highlightName">{s.name}</span></button>)}</section><section className="stoneGrid">{stones.map((s:any)=><button key={s.id} onClick={()=>{setActive(s);nav('product')}}><span>{String(s.id+1).padStart(2,'0')}</span><img className="gridStoneImage" src={stoneImages[s.id%stoneImages.length]} alt={s.name}/><strong>{s.name}</strong><small>{s.variants.join(' · ')}</small></button>)}</section></>}
   {page==='categories'&&<Page title="Categories" kicker="COLLECTION"><div className="categoryList">{stones.map((s:any)=><button key={s.id} onClick={()=>{setActive(s);nav('product')}}><span>{String(s.id+1).padStart(2,'0')}</span><strong>{s.name}</strong><em>{s.variants.length} colours</em><b>↗</b></button>)}</div></Page>}
   {page==='search'&&<Page title="Search" kicker="FIND A STONE"><div className="searchPage"><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search a stone or colour"/><div className="results">{filtered.map((s:any)=><button key={s.id} onClick={()=>{setActive(s);nav('product')}}><strong>{s.name}</strong><span>{s.variants.join(' · ')}</span></button>)}</div></div></Page>}
   {page==='product'&&<Product active={active} onHold={hold} onNav={nav}/>}
@@ -142,16 +142,13 @@ const root=document.getElementById('opal-app');
 if(root){
   try{
     const reactRoot=createRoot(root);
-    // Boot after first paint; never replace/remove the server-rendered collection.
-    const start=()=>{
-      try{reactRoot.render(<App/>);}catch(error){console.error('OPAL_BOOT_ERROR',error);}
-    };
+    const start=()=>reactRoot.render(<App/>);
     if('requestIdleCallback' in window){
-      (window as any).requestIdleCallback(start,{timeout:1200});
+      (window as any).requestIdleCallback(start,{timeout:800});
     }else{
       setTimeout(start,0);
     }
   }catch(error){
-    console.error('OPAL_ROOT_ERROR',error);
+    console.error('OPAL_BOOT_ERROR',error);
   }
 };
